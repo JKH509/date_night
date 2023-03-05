@@ -1,0 +1,14 @@
+# Directories
+node_modules/
+dist/
+coverage/
+
+# Files
+db
+.env
+.env.*
+scripts
+.DS_Store
+npm-debug.log
+yarn-error.log
+package-lock.json
