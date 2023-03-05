@@ -13,9 +13,12 @@ function router() {
 
 
   userRouter.route('/users').get(getAllUserAccounts);
-  userRouter.route('/users/:id').get(getUserAccountById)
-  .post(createUserAccount)
-  .post(updateUserAccountById)
+
+  userRouter.route('/users-create').post(createUserAccount)
+
+  userRouter.route('/user/:id')
+  .get(getUserAccountById)
+  .put(updateUserAccountById)
   .delete(deleteUserAccountById);
 
 return userRouter;

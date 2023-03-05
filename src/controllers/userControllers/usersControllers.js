@@ -1,87 +1,75 @@
 const { pool } = require('../../../db/connections');
+const logger = require('../../utils/logger/logger');
+const { readRows, createRow, updateRow, deleteRow } = require('../../utils/queryFunctions/queryHelperFunctions');
 
-// Create a connection pool
+
+let table = process.env.USERS_TABLE;
+
+
 
 const userController = () => {
-// Get all user accounts
+
 const getAllUserAccounts = async (req, res) => {
   try {
-    const client = await pool.connect();
-    const result = await client.query(`
-    SELECT * FROM date_night.user_accounts
-    `);
-    console.log("result.rows ", result.rows)
-    // res.status(200).json(result.rows);
-    res.status(200).send(result.rows);
-    client.release();
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
+    const allUsers = await readRows(table);
+    res.status(200).send(allUsers);
+  } catch (error) {
+    res.send(error)
   }
 }; 
 
 // Get a single user account by id
 const getUserAccountById = async (req, res) => {
+  const idParam = req.params.id
   try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT * FROM user_accounts WHERE id = $1', [req.params.id]);
-    if (result.rows.length === 0) {
-      return res.status(404).send('User account not found');
+    const users = await readRows(table, "WHERE id = $1", [Number(idParam)]);
+    if (users.length === 0) {
+      throw new Error(`User with ID ${idParam} not found`);
     }
-    res.status(200).json(result.rows[0]);
-    client.release();
+    res.status(200).send(users[0]);
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
   }
 };
 
+
 // Create a new user account
 const createUserAccount = async (req, res) => {
-  const { first_name, last_name, email, password } = req.body;
+  const data = { first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com', password_hash: 'password123' };
   try {
-    const client = await pool.connect();
-    const result = await client.query('INSERT INTO user_accounts (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING id', [first_name, last_name, email, password]);
-    res.status(201).json({ id: result.rows[0].id });
-    client.release();
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
+    const result = await createRow(table, data);
+    res.status(201).send(result);
+  } catch (error) {
+    res.send(error)
   }
 };
 
 // Update an existing user account by id
 const updateUserAccountById = async (req, res) => {
-  const { first_name, last_name, email, password } = req.body;
+  // const id = req.params.id;
+  const id = 2;
+  const data = req.body;
   try {
-    const client = await pool.connect();
-    const result = await client.query('UPDATE user_accounts SET first_name = $1, last_name = $2, email = $3, password = $4 WHERE id = $5', [first_name, last_name, email, password, req.params.id]);
-    if (result.rowCount === 0) {
-      return res.status(404).send('User account not found');
-    }
-    res.status(204).send();
-    client.release();
+    await updateRow(table, id, data );
+    res.status(200).json({ message: `User account with ID ${id} updated successfully.` });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server Error');
+    res.status(400).send(err)
   }
 };
 
 // Delete an existing user account by id
 const deleteUserAccountById = async (req, res) => {
+  const { id } = req.params;
+  console.log("ID ", id)
   try {
-    const client = await pool.connect();
-    const result = await client.query('DELETE FROM user_accounts WHERE id = $1', [req.params.id]);
-    if (result.rowCount === 0) {
-      return res.status(404).send('User account not found');
-    }
+    await deleteRow(table, id);
     res.status(204).send();
-    client.release();
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server Error');
+    res.status(500).json({ error: 'Unable to delete user account.' });
   }
-
 };
 
 return {

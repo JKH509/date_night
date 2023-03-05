@@ -19,5 +19,9 @@
     "jsonwebtoken": "^9.0.0",
     "nodemon": "^2.0.21",
     "pg": "^8.9.0"
+  },
+  "devDependencies": {
+    "morgan": "^1.10.0",
+    "winston": "^3.8.2"
   }
 }
