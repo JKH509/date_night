@@ -1,5 +1,5 @@
 const { pool } = require('../../../db/connections');
-
+const { logger } = require('../logger/logger')
 
 const executeQuery = async (query, params) => {
   try {
@@ -11,7 +11,7 @@ const executeQuery = async (query, params) => {
     return result;
   } catch (err) {
     console.error(err);
-    // logger.error(err);
+    logger.error(err);
     throw new Error('Database query failed');
   }
 }
@@ -64,7 +64,6 @@ const updateRow = async (table, id, data) => {
 }
 
 const deleteRow = async (table, id) => {
-  console.log("called ")
   if (!isValidTableName(table)) {
     throw new Error(`Invalid table name: ${table}`);
   }
