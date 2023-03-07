@@ -1,6 +1,6 @@
-const { pool } = require('../../../db/connections');
+// const { pool } = require('../../../db/connections');
 const User = require('../../models/user');
-const logger = require('../../utils/logger/logger');
+// const logger = require('../../utils/logger/logger');
 const { readRows, createRow, updateRow, deleteRow } = require('../../utils/queryFunctions/queryHelperFunctions');
 
 
@@ -39,13 +39,10 @@ const getUserAccountById = async (req, res) => {
 const createUserAccount = async (req, res) => {
   const user = new User({first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com', password_hash: 'password123'} )
   if (!newUser.isValid()) {
-
     // If the user object is not valid, return an error response to the client
     // return res.status(400).json({ error: error });
     return res.status(400).json({ error: 'Invalid user data' });
   }
-  
-
   try {
     const result = await createRow(table, user);
     res.status(201).send(result);

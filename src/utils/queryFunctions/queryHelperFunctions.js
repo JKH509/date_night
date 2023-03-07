@@ -51,6 +51,18 @@ const readRows = async (table, whereClause  , params = []) => {
   return result.rows;
 } 
 
+const readRowsOfCountOrSum = async (table, CountOrSum, whereClause  , params = []) => {
+  if (!isValidTableName(table)) {
+    throw new Error(`Invalid table name: ${table}`);
+  }
+  if (whereClause && !isValidSqlWhereClause(whereClause)) {
+    throw new Error(`Invalid WHERE clause: ${whereClause}`);
+  }
+  const query = `SELECT ${CountOrSum}(*) FROM ${table} ${whereClause ? whereClause : ''}`;
+  const result = await executeQuery(query, params);
+  return result.rows;
+} 
+
 const updateRow = async (table, id, data) => {
   if (!isValidTableName(table)) {
     throw new Error(`Invalid table name: ${table}`);
@@ -74,6 +86,7 @@ const deleteRow = async (table, id) => {
 
 module.exports = {
   createRow,
+  readRowsOfCountOrSum,
   readRows,
   updateRow,
   deleteRow
